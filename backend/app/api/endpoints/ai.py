@@ -255,7 +255,7 @@ async def analyze_query(request: QueryRequest):
             ],
             model="llama-3.3-70b-versatile",
             temperature=0.3,
-            max_tokens=32768,
+            max_tokens=1024,
             top_p=1,
             stop=None,
             stream=False,
@@ -304,7 +304,7 @@ async def generate_final_prompt(request: GenerateDetailedPromptRequest):
             # Query Pinecone
             matches = index.query(
                 vector=xq, 
-                top_k=10, 
+                top_k=5, 
                 include_metadata=True, 
                 namespace=PINECONE_NAMESPACE
             )
@@ -630,7 +630,7 @@ async def generate_final_prompt(request: GenerateDetailedPromptRequest):
             ],
             model="llama-3.3-70b-versatile",
             temperature=0.25,
-            max_tokens=32768,
+            max_tokens=4096,
         )
 
         final_prompt = chat_completion.choices[0].message.content
