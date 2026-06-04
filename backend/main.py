@@ -14,9 +14,10 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-from app.api.endpoints import ai
+from app.api.endpoints import ai, litcode
 
 app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
+app.include_router(litcode.router, prefix="/api/litcode", tags=["litcode"])
 
 @app.get("/")
 def read_root():
