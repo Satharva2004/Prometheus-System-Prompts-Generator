@@ -124,7 +124,7 @@ class SAPRequest(BaseModel):
 
 def flatten_to_root(data: dict) -> dict:
     merged = {}
-    for value in data.values():
+    for key, value in data.items():
         if isinstance(value, dict):
             merged.update(value)
         elif isinstance(value, list):
@@ -132,7 +132,7 @@ def flatten_to_root(data: dict) -> dict:
                 if isinstance(item, dict):
                     merged.update(item)
         else:
-            pass
+            merged[key] = value
     return merged
 
 
