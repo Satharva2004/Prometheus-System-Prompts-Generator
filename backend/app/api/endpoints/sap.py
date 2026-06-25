@@ -125,18 +125,32 @@ def serialize_prompt(user_prompt: Any) -> str:
 
 
 def call_grok(system_prompt: str, user_prompt: Any) -> str:
-    client = get_groq_client()
+    if not api_keys:
+        raise HTTPException(status_code=500, detail="No GROQ_API_KEYs configured")
+
     content = serialize_prompt(user_prompt)
-    completion = client.chat.completions.create(
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": content},
-        ],
-        model="llama-3.3-70b-versatile",
-        temperature=0.3,
-        max_tokens=1024,
-    )
-    return completion.choices[0].message.content
+    last_error = None
+
+    for _ in range(len(api_keys)):
+        current_key, key_name = next(key_cycle)
+        try:
+            client = Groq(api_key=current_key)
+            completion = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": content},
+                ],
+                model="llama-3.3-70b-versatile",
+                temperature=0.3,
+                max_tokens=1024,
+            )
+            return completion.choices[0].message.content
+        except Exception as e:
+            last_error = e
+            print(f"Key {key_name} failed: {e} — trying next key")
+            continue
+
+    raise HTTPException(status_code=500, detail=f"All Groq keys failed. Last error: {last_error}")
 
 
 # --- Endpoints ---
