@@ -122,11 +122,26 @@ class SAPRequest(BaseModel):
 
 # --- Helpers ---
 
+def flatten_to_root(data: dict) -> dict:
+    merged = {}
+    for value in data.values():
+        if isinstance(value, dict):
+            merged.update(value)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    merged.update(item)
+        else:
+            pass
+    return merged
+
+
 def build_content(request: SAPRequest) -> str:
     data = request.model_dump()
     if not data:
         return "{}"
-    return json.dumps(data, ensure_ascii=False, indent=2)
+    flat = flatten_to_root(data)
+    return json.dumps(flat, ensure_ascii=False, indent=2)
 
 
 def call_grok(system_prompt: str, request: SAPRequest) -> str:
