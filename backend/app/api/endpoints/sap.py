@@ -112,12 +112,15 @@ STRICT RULES:
 - Output ONLY the paragraph + sign off, nothing else"""
 
 
-# --- Request Model ---
-# Accepts any number of fields with any names, all of type Any.
+# --- Models ---
+# Request: accepts any number of fields with any names, all of type Any.
 # Example: { "personal": {...}, "process": {...}, "extra_info": "..." }
 
 class SAPRequest(BaseModel):
     model_config = ConfigDict(extra="allow")
+
+class SAPResponse(BaseModel):
+    output: str
 
 
 # --- Helpers ---
@@ -175,7 +178,7 @@ def call_grok(system_prompt: str, request: SAPRequest) -> str:
 
 # --- Endpoints ---
 
-@router.post("/perpersonal")
+@router.post("/perpersonal", response_model=SAPResponse)
 async def perpersonal(request: SAPRequest):
     try:
         result = call_grok(PERPERSONAL_SYSTEM_PROMPT, request)
@@ -186,7 +189,7 @@ async def perpersonal(request: SAPRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/onb2process")
+@router.post("/onb2process", response_model=SAPResponse)
 async def onb2process(request: SAPRequest):
     try:
         result = call_grok(ONB2PROCESS_SYSTEM_PROMPT, request)
