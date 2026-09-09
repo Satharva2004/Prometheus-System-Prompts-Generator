@@ -36,12 +36,14 @@ def get_groq_client():
 embedding_model = None
 pinecone_index = None
 
+EMBEDDING_MODEL_NAME = "BAAI/bge-base-en-v1.5"
+
 def get_embedding_model():
     global embedding_model
     if embedding_model is None:
-        print("Loading SentenceTransformer model...")
-        from sentence_transformers import SentenceTransformer
-        embedding_model = SentenceTransformer('all-mpnet-base-v2')
+        print("Loading fastembed model...")
+        from fastembed import TextEmbedding
+        embedding_model = TextEmbedding(model_name=EMBEDDING_MODEL_NAME)
     return embedding_model
 
 def get_pinecone_index():
@@ -299,7 +301,7 @@ async def generate_final_prompt(request: GenerateDetailedPromptRequest):
         
         if embed_model and index:
             # Create embedding for the query
-            xq = embed_model.encode(request.query).tolist()
+            xq = list(embed_model.embed([request.query]))[0].tolist()
             
             # Query Pinecone
             matches = index.query(

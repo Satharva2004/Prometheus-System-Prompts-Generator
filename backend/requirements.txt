@@ -2,8 +2,7 @@ fastapi
 uvicorn
 pinecone
 python-dotenv
-sentence-transformers
-keybert
+fastembed
 groq
 pytest
 httpx
